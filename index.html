@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Match - Team Project</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Load Supabase from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Entry point module -->
+    <script type="module" src="js/main.js" defer></script>
+</head>
+<body>
+    <!-- Nickname Entry Modal -->
+    <div id="nickname-modal" class="modal active">
+        <div class="modal-content">
+            <h2>Enter Nickname</h2>
+            <input type="text" id="nickname-input" placeholder="Player 1" maxlength="15">
+            <button id="start-btn">Start Game</button>
+        </div>
+    </div>
+
+    <!-- Main Game UI -->
+    <div id="game-container" class="hidden">
+        <header id="stats-header">
+            <div class="stat">Moves: <span id="moves-count">0</span></div>
+            <div class="stat">Time: <span id="timer-count">0</span>s</div>
+            <div class="stat">Lives: <span id="lives-count">3</span></div>
+        </header>
+
+        <main id="game-board" class="grid-4x4"></main>
+        
+        <button id="restart-btn" class="hidden">Play Again</button>
+    </div>
+
+    <!-- Game Over / Win Modal -->
+    <div id="result-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="result-title">Game Over</h2>
+            <p id="result-message"></p>
+            
+            <div id="leaderboard-section">
+                <h3>Top Scores</h3>
+                <ul id="leaderboard-list">
+                    <li>Loading...</li>
+                </ul>
+            </div>
+            <button id="play-again-btn">Play Again</button>
+        </div>
+    </div>
+</body>
+</html>

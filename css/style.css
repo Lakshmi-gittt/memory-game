@@ -1,0 +1,37 @@
+/* ==========================================================================
+ * OWNER: Member 2 (UI & Styling)
+ * 
+ * AI PROMPT / INSTRUCTIONS FOR GENERATION:
+ * You are writing the CSS for a vanilla JavaScript Memory Match game. 
+ * Do NOT write any HTML or JS. Only write CSS.
+ * 
+ * REQUIRED TASKS & CONSTRAINTS:
+ * 1. CSS Variables: Define a color palette (primary, secondary, background, card-back, text) in :root.
+ * 2. Layout: The body should center the #game-container.
+ * 3. Stats Header: Style #stats-header to display moves, time, and lives horizontally spaced out.
+ * 4. Game Board: Style #game-board as a CSS Grid (4 columns, 4 rows, with a small gap).
+ * 5. Card Flip Animation (CRITICAL): 
+ *    - The UI team will generate cards with this EXACT HTML structure:
+ *      <div class="card" data-index="0">
+ *        <div class="card-inner">
+ *          <div class="card-front"><img src="..."></div>
+ *          <div class="card-back"></div>
+ *        </div>
+ *      </div>
+ *    - Write the 3D transform CSS to make `.card-inner` flip 180 degrees on the Y-axis when the `.card` has the class `.flipped`.
+ *    - Ensure `.card-front` and `.card-back` have `backface-visibility: hidden;`.
+ *    - The `.card-back` is the default visible side (e.g., a solid color or pattern). 
+ *    - The `.card-front` contains the image and starts rotated 180deg.
+ * 6. Modals: Style `.modal` as a fixed, full-screen semi-transparent overlay. Center `.modal-content` inside it.
+ *    - `.modal.hidden` must have `display: none !important;`
+ *    - `.modal.active` must have `display: flex !important;`
+ * 7. Leaderboard: Style `#leaderboard-list` as a clean, numbered list with no default bullets.
+ * 8. Responsive: Ensure the 4x4 grid scales down gracefully on mobile screens using media queries.
+ * ========================================================================== */
+
+/* Base Reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Add your generated CSS below */
+.hidden { display: none !important; }
+.active { display: flex !important; }
