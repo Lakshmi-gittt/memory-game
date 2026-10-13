@@ -1,24 +1,3 @@
-/** ==========================================================================
- * OWNER: Lead (Integration & Event Wiring)
- * 
- * AI PROMPT / INSTRUCTIONS FOR GENERATION:
- * You are the controller file. You import pure logic from game.js, DOM updates from ui.js, and DB calls from db.js.
- * 
- * RESPONSIBILITIES:
- * 1. Keep a local variable for the current game state (fetched initially from game.js).
- * 2. Keep a variable for the timer interval.
- * 3. Event Listeners:
- *    - DOMContentLoaded: show nickname modal.
- *    - Start Game button: get nickname, hide modal, call game.getInitialState(), call ui.renderBoard(), start timer loop (setInterval updating state and calling ui.updateStats).
- *    - Card clicks (Event Delegation on #game-board):
- *        - Get data-index of clicked card.
- *        - Pass to game.handleCardFlip().
- *        - Call ui.flipCardElement().
- *        - If two cards are flipped, use setTimeout(..., 1000) to pause, then call game.checkMatch(), update state, and update UI for both cards.
- *        - Check game.isGameOver(). If true, stop timer. If win, call db.submitScore() then db.fetchTopScores() then ui.showModal('result-modal').
- *    - Play Again button: reset state, render board, hide result modal.
- * ========================================================================== */
-
 import * as Game from './game.js';
 import * as UI from './ui.js';
 import * as DB from './db.js';
@@ -26,7 +5,113 @@ import * as DB from './db.js';
 let currentState = null;
 let timerInterval = null;
 let playerNickname = "Anonymous";
+let isProcessing = false; // Prevents clicking while cards are animating
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Write your integration and event listener logic here
+    // 1. Initial Setup: Show Nickname Modal
+    UI.showModal('nickname-modal');
+
+    // 2. Start Game Event
+    document.getElementById('start-btn').addEventListener('click', () => {
+        const input = document.getElementById('nickname-input').value.trim();
+        if (input) playerNickname = input;
+        
+        UI.hideModal('nickname-modal');
+        startGame();
+    });
+
+    // 3. Play Again Event
+    document.getElementById('play-again-btn').addEventListener('click', () => {
+        UI.hideModal('result-modal');
+        startGame();
+    });
+
+    // 4. Card Click Event (Event Delegation on the board)
+    document.getElementById('game-board').addEventListener('click', handleBoardClick);
 });
+
+function startGame() {
+    // Reset state and UI
+    currentState = Game.getInitialState();
+    UI.renderBoard(currentState.cards);
+    UI.updateStats(currentState.moves, currentState.time, currentState.lives);
+    
+    // Ensure the game container is visible
+    document.getElementById('game-container').classList.remove('hidden');
+
+    // Start Timer
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        currentState.time += 1;
+        UI.updateStats(currentState.moves, currentState.time, currentState.lives);
+    }, 1000);
+}
+
+async function handleBoardClick(event) {
+    // Ignore clicks if we are processing a match or if the game is over
+    if (isProcessing) return;
+
+    // Find the closest card element that was clicked
+    const cardElement = event.target.closest('.card');
+    if (!cardElement) return;
+
+    const cardIndex = parseInt(cardElement.dataset.index, 10);
+    const clickedCard = currentState.cards[cardIndex];
+
+    // Ignore clicks on already flipped or matched cards
+    if (clickedCard.isFlipped || clickedCard.isMatched) return;
+
+    // Flip the card
+    currentState = Game.handleCardFlip(currentState, cardIndex);
+    UI.flipCardElement(cardIndex, true, false);
+    
+    // Check how many cards are currently flipped but unmatched
+    const flippedUnmatched = currentState.cards.filter(c => c.isFlipped && !c.isMatched);
+
+    if (flippedUnmatched.length === 2) {
+        isProcessing = true; // Lock the board
+        UI.updateStats(currentState.moves, currentState.time, currentState.lives);
+
+        // Pause for 1 second so the user can see the cards
+        setTimeout(async () => {
+            // Check for match (this deducts a life if incorrect)
+            currentState = Game.checkMatch(currentState);
+            
+            // Update UI for both cards (either leave face up or flip back down)
+            flippedUnmatched.forEach(card => {
+                // We have to find their index in the original array
+                const index = currentState.cards.findIndex(c => c.id === card.id);
+                const updatedCard = currentState.cards[index];
+                UI.flipCardElement(index, updatedCard.isFlipped, updatedCard.isMatched);
+            });
+
+            UI.updateStats(currentState.moves, currentState.time, currentState.lives);
+            await checkGameEnd();
+            isProcessing = false; // Unlock the board
+        }, 1000);
+    }
+}
+
+async function checkGameEnd() {
+    const status = Game.isGameOver(currentState);
+    
+    if (status.isOver) {
+        clearInterval(timerInterval);
+        
+        if (status.isWin) {
+            UI.showModal('result-modal', 'You Win!', `Great job ${playerNickname}! You finished in ${currentState.moves} moves and ${currentState.time} seconds.`);
+            
+            // Database operations: submit score, then fetch and render leaderboard
+            const success = await DB.submitScore(playerNickname, currentState.moves, currentState.time);
+            if (success) {
+                const topScores = await DB.fetchTopScores();
+                UI.renderLeaderboard(topScores);
+            }
+        } else {
+            UI.showModal('result-modal', 'Game Over', `Out of lives! Better luck next time, ${playerNickname}.`);
+            // Optionally fetch leaderboard anyway to show them what to beat
+            const topScores = await DB.fetchTopScores();
+            UI.renderLeaderboard(topScores);
+        }
+    }
+}
