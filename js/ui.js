@@ -34,25 +34,29 @@
  */
 
 // 1. Render the game board
+
+/**
+ * 1. Render the game board
+ */
 export function renderBoard(cardsArray) {
   const board = document.getElementById("game-board");
 
   if (!board) return;
 
-  // Clear the existing board
+  // Clear the board before rendering
   board.replaceChildren();
 
   cardsArray.forEach((cardData, index) => {
-    // Create the card container
+    // Create the card
     const card = document.createElement("div");
     card.classList.add("card");
     card.dataset.index = index;
 
-    // Create the inner card
+    // Create the inner container
     const cardInner = document.createElement("div");
     cardInner.classList.add("card-inner");
 
-    // Create the front of the card
+    // Create the card front
     const cardFront = document.createElement("div");
     cardFront.classList.add("card-front");
 
@@ -62,7 +66,7 @@ export function renderBoard(cardsArray) {
 
     cardFront.appendChild(image);
 
-    // Create the back of the card
+    // Create the card back
     const cardBack = document.createElement("div");
     cardBack.classList.add("card-back");
 
@@ -75,18 +79,32 @@ export function renderBoard(cardsArray) {
   });
 }
 
-// 2. Update game statistics
+
+/**
+ * 2. Update game statistics
+ */
 export function updateStats(moves, time, lives) {
   const movesCount = document.getElementById("moves-count");
   const timerCount = document.getElementById("timer-count");
   const livesCount = document.getElementById("lives-count");
 
-  if (movesCount) movesCount.textContent = String(moves);
-  if (timerCount) timerCount.textContent = String(time);
-  if (livesCount) livesCount.textContent = String(lives);
+  if (movesCount) {
+    movesCount.textContent = moves;
+  }
+
+  if (timerCount) {
+    timerCount.textContent = time;
+  }
+
+  if (livesCount) {
+    livesCount.textContent = lives;
+  }
 }
 
-// 3. Flip a card or mark it as matched
+
+/**
+ * 3. Flip a card and mark matched cards
+ */
 export function flipCardElement(index, isFlipped, isMatched) {
   const card = document.querySelector(
     `.card[data-index="${index}"]`
@@ -98,7 +116,10 @@ export function flipCardElement(index, isFlipped, isMatched) {
   card.classList.toggle("matched", isMatched);
 }
 
-// 4. Show a modal
+
+/**
+ * 4. Show a modal
+ */
 export function showModal(modalId, title = "", message = "") {
   const modal = document.getElementById(modalId);
 
@@ -107,17 +128,25 @@ export function showModal(modalId, title = "", message = "") {
   modal.classList.remove("hidden");
   modal.classList.add("active");
 
-  // Update result text only for the result modal
+  // Update title and message for the result modal
   if (modalId === "result-modal") {
     const resultTitle = document.getElementById("result-title");
     const resultMessage = document.getElementById("result-message");
 
-    if (resultTitle) resultTitle.textContent = title;
-    if (resultMessage) resultMessage.textContent = message;
+    if (resultTitle) {
+      resultTitle.textContent = title;
+    }
+
+    if (resultMessage) {
+      resultMessage.textContent = message;
+    }
   }
 }
 
-// 5. Hide a modal
+
+/**
+ * 5. Hide a modal
+ */
 export function hideModal(modalId) {
   const modal = document.getElementById(modalId);
 
@@ -127,7 +156,10 @@ export function hideModal(modalId) {
   modal.classList.add("hidden");
 }
 
-// 6. Render the leaderboard
+
+/**
+ * 6. Render the leaderboard
+ */
 export function renderLeaderboard(scoresArray) {
   const leaderboard = document.getElementById("leaderboard-list");
 
@@ -145,3 +177,4 @@ export function renderLeaderboard(scoresArray) {
     leaderboard.appendChild(listItem);
   });
 }
+
