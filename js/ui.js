@@ -27,4 +27,121 @@
  * 6. `export function renderLeaderboard(scoresArray)`: Clears `#leaderboard-list`. Loops through scoresArray and creates `<li>Nickname - Moves: X - Time: Ys</li>` elements.
  * ========================================================================== */
 
-// Write and export your DOM functions below
+
+/**
+ * Member 5: DOM Manipulation & UI Rendering
+ * This file only updates the UI. It does not store game state.
+ */
+
+// 1. Render the game board
+export function renderBoard(cardsArray) {
+  const board = document.getElementById("game-board");
+
+  if (!board) return;
+
+  // Clear the existing board
+  board.replaceChildren();
+
+  cardsArray.forEach((cardData, index) => {
+    // Create the card container
+    const card = document.createElement("div");
+    card.classList.add("card");
+    card.dataset.index = index;
+
+    // Create the inner card
+    const cardInner = document.createElement("div");
+    cardInner.classList.add("card-inner");
+
+    // Create the front of the card
+    const cardFront = document.createElement("div");
+    cardFront.classList.add("card-front");
+
+    const image = document.createElement("img");
+    image.src = `assets/${cardData.pairId}.png`;
+    image.alt = "card";
+
+    cardFront.appendChild(image);
+
+    // Create the back of the card
+    const cardBack = document.createElement("div");
+    cardBack.classList.add("card-back");
+
+    // Assemble the card
+    cardInner.append(cardFront, cardBack);
+    card.appendChild(cardInner);
+
+    // Add the card to the board
+    board.appendChild(card);
+  });
+}
+
+// 2. Update game statistics
+export function updateStats(moves, time, lives) {
+  const movesCount = document.getElementById("moves-count");
+  const timerCount = document.getElementById("timer-count");
+  const livesCount = document.getElementById("lives-count");
+
+  if (movesCount) movesCount.textContent = String(moves);
+  if (timerCount) timerCount.textContent = String(time);
+  if (livesCount) livesCount.textContent = String(lives);
+}
+
+// 3. Flip a card or mark it as matched
+export function flipCardElement(index, isFlipped, isMatched) {
+  const card = document.querySelector(
+    `.card[data-index="${index}"]`
+  );
+
+  if (!card) return;
+
+  card.classList.toggle("flipped", isFlipped);
+  card.classList.toggle("matched", isMatched);
+}
+
+// 4. Show a modal
+export function showModal(modalId, title = "", message = "") {
+  const modal = document.getElementById(modalId);
+
+  if (!modal) return;
+
+  modal.classList.remove("hidden");
+  modal.classList.add("active");
+
+  // Update result text only for the result modal
+  if (modalId === "result-modal") {
+    const resultTitle = document.getElementById("result-title");
+    const resultMessage = document.getElementById("result-message");
+
+    if (resultTitle) resultTitle.textContent = title;
+    if (resultMessage) resultMessage.textContent = message;
+  }
+}
+
+// 5. Hide a modal
+export function hideModal(modalId) {
+  const modal = document.getElementById(modalId);
+
+  if (!modal) return;
+
+  modal.classList.remove("active");
+  modal.classList.add("hidden");
+}
+
+// 6. Render the leaderboard
+export function renderLeaderboard(scoresArray) {
+  const leaderboard = document.getElementById("leaderboard-list");
+
+  if (!leaderboard) return;
+
+  // Clear the old leaderboard
+  leaderboard.replaceChildren();
+
+  scoresArray.forEach((score) => {
+    const listItem = document.createElement("li");
+
+    listItem.textContent =
+      `${score.nickname} - Moves: ${score.moves} - Time: ${score.time}s`;
+
+    leaderboard.appendChild(listItem);
+  });
+}
